@@ -3,22 +3,31 @@ import { Image, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useContext, useState } from 'react';
 import { FavoritesContext } from '../contexts/FavoritesContext';
+import { LastSeenContext } from '../contexts/LastSeenContext';
 
-export default function Card({ movie }) {
+export default function Card({ media }) {
   const navigation = useNavigation();
-  const { addFavorite } = useContext(FavoritesContext);
+  const { isFavorite } = useContext(FavoritesContext);
   const [favorite, setFavorite] = useState(false);
-  const imgUri = 'https://image.tmdb.org/t/p/w200' + movie.poster_path;
 
-  function favoritar() {
+  const { newLastSeen } = useContext(LastSeenContext);
+
+  function bookmark() {
     setFavorite(!favorite);
-    addFavorite(movie);
+    isFavorite(media);
   }
 
+  const imgUri = 'https://image.tmdb.org/t/p/w200' + media.poster_path;
+
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('Detail')}>
+    <TouchableOpacity
+      onPress={() => {
+        navigation.navigate('Detail', media);
+        newLastSeen(media);
+      }}
+    >
       <View style={styles.card}>
-        <TouchableOpacity onPress={() => favoritar()}>
+        <TouchableOpacity onPress={() => bookmark()}>
           <MaterialIcons
             style={styles.favorite}
             name={favorite ? 'favorite' : 'favorite-border'}
@@ -29,7 +38,7 @@ export default function Card({ movie }) {
         <Image style={styles.poster} source={{ uri: imgUri }}></Image>
         <Text style={styles.vote}>
           <MaterialIcons name='star' color='gold' size={16}></MaterialIcons>
-          {movie.vote_average.toFixed(1)}
+          {media.vote_average.toFixed(1)}
         </Text>
       </View>
     </TouchableOpacity>
